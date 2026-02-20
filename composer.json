@@ -3,7 +3,8 @@
     "description": "PHP SDK for the EU VIES (VAT Information Exchange System) REST API",
     "type": "library",
     "license": "MIT",
-    "keywords": ["vies", "vat", "eu", "tax", "sdk", "psr-18"],
+    "minimum-stability": "stable",
+    "keywords": ["vies", "vat", "eu", "tax", "sdk"],
     "authors": [
         {
             "name": "matav5",
