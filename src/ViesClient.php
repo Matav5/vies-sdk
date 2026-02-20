@@ -17,8 +17,10 @@ class ViesClient
         HttpClientInterface $httpClient,
         private readonly Config $config = new Config(),
     ) {
-        $this->vat = new VatResource($httpClient, $this->config->getBaseUrl());
-        $this->status = new StatusResource($httpClient, $this->config->getBaseUrl());
+        $client = $httpClient->withOptions(['timeout' => $this->config->getTimeout()]);
+
+        $this->vat = new VatResource($client, $this->config->getBaseUrl());
+        $this->status = new StatusResource($client, $this->config->getBaseUrl());
     }
 
     public function vat(): VatResource
