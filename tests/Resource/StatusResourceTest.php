@@ -6,10 +6,8 @@ namespace Matav5\ViesSdk\Tests\Resource;
 
 use Matav5\ViesSdk\Exception\ApiException;
 use Matav5\ViesSdk\Resource\StatusResource;
-use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\HttpClient\Psr18Client;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
 class StatusResourceTest extends TestCase
@@ -18,10 +16,7 @@ class StatusResourceTest extends TestCase
 
     private function makeResource(MockResponse ...$responses): StatusResource
     {
-        $psr17 = new Psr17Factory();
-        $client = new Psr18Client(new MockHttpClient($responses), $psr17, $psr17);
-
-        return new StatusResource($client, $client, self::BASE_URL);
+        return new StatusResource(new MockHttpClient($responses), self::BASE_URL);
     }
 
     private function jsonResponse(array $data, int $status = 200): MockResponse
@@ -83,5 +78,42 @@ class StatusResourceTest extends TestCase
         ], 500));
 
         $resource->check();
+    }
+
+    public function testPingReturnsTrueWhenVowAvailable(): void
+    {
+        $resource = $this->makeResource($this->jsonResponse([
+            'vow' => ['available' => true],
+            'countries' => [],
+        ]));
+
+        self::assertTrue($resource->ping());
+    }
+
+    public function testPingReturnsFalseWhenVowUnavailable(): void
+    {
+        $resource = $this->makeResource($this->jsonResponse([
+            'vow' => ['available' => false],
+            'countries' => [],
+        ]));
+
+        self::assertFalse($resource->ping());
+    }
+
+    public function testPingReturnsFalseOnNetworkError(): void
+    {
+        $resource = $this->makeResource(new MockResponse('', ['error' => 'Connection refused']));
+
+        self::assertFalse($resource->ping());
+    }
+
+    public function testPingReturnsFalseOnApiError(): void
+    {
+        $resource = $this->makeResource($this->jsonResponse([
+            'actionSucceed' => false,
+            'errorWrappers' => [],
+        ], 500));
+
+        self::assertFalse($resource->ping());
     }
 }

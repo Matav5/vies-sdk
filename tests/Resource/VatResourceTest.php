@@ -8,10 +8,8 @@ use Matav5\ViesSdk\Enum\MatchStatus;
 use Matav5\ViesSdk\Exception\ApiException;
 use Matav5\ViesSdk\Request\CheckVatRequest;
 use Matav5\ViesSdk\Resource\VatResource;
-use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\HttpClient\Psr18Client;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
 class VatResourceTest extends TestCase
@@ -20,10 +18,7 @@ class VatResourceTest extends TestCase
 
     private function makeResource(MockResponse ...$responses): VatResource
     {
-        $psr17 = new Psr17Factory();
-        $client = new Psr18Client(new MockHttpClient($responses), $psr17, $psr17);
-
-        return new VatResource($client, $client, $client, self::BASE_URL);
+        return new VatResource(new MockHttpClient($responses), self::BASE_URL);
     }
 
     private function jsonResponse(array $data, int $status = 200): MockResponse

@@ -4,28 +4,20 @@ declare(strict_types=1);
 
 namespace Matav5\ViesSdk\Exception;
 
-use Psr\Http\Message\ResponseInterface;
-
 class ApiException extends ViesSdkException
 {
     public function __construct(
         string $message,
-        private readonly ResponseInterface $response,
-        int $code = 0,
+        private readonly int $statusCode,
         private readonly array $errorWrappers = [],
         ?\Throwable $previous = null,
     ) {
-        parent::__construct($message, $code, $previous);
-    }
-
-    public function getResponse(): ResponseInterface
-    {
-        return $this->response;
+        parent::__construct($message, $statusCode, $previous);
     }
 
     public function getStatusCode(): int
     {
-        return $this->response->getStatusCode();
+        return $this->statusCode;
     }
 
     public function getErrorCodes(): array

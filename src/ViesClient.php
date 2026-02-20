@@ -6,9 +6,7 @@ namespace Matav5\ViesSdk;
 
 use Matav5\ViesSdk\Resource\StatusResource;
 use Matav5\ViesSdk\Resource\VatResource;
-use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Http\Message\StreamFactoryInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ViesClient
 {
@@ -16,22 +14,11 @@ class ViesClient
     private readonly StatusResource $status;
 
     public function __construct(
-        ClientInterface $httpClient,
-        RequestFactoryInterface $requestFactory,
-        StreamFactoryInterface $streamFactory,
+        HttpClientInterface $httpClient,
         private readonly Config $config = new Config(),
     ) {
-        $this->vat = new VatResource(
-            $httpClient,
-            $requestFactory,
-            $streamFactory,
-            $this->config->getBaseUrl(),
-        );
-        $this->status = new StatusResource(
-            $httpClient,
-            $requestFactory,
-            $this->config->getBaseUrl(),
-        );
+        $this->vat = new VatResource($httpClient, $this->config->getBaseUrl());
+        $this->status = new StatusResource($httpClient, $this->config->getBaseUrl());
     }
 
     public function vat(): VatResource

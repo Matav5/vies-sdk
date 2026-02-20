@@ -6,28 +6,19 @@ namespace Matav5\ViesSdk\Tests\Exception;
 
 use Matav5\ViesSdk\Exception\ApiException;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
 
 class ApiExceptionTest extends TestCase
 {
-    private function makeResponse(int $statusCode): ResponseInterface
-    {
-        $response = $this->createMock(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn($statusCode);
-
-        return $response;
-    }
-
     public function testGetStatusCode(): void
     {
-        $exception = new ApiException('error', $this->makeResponse(400), 400);
+        $exception = new ApiException('error', 400);
 
         self::assertSame(400, $exception->getStatusCode());
     }
 
     public function testGetErrorCodesWithNoWrappers(): void
     {
-        $exception = new ApiException('error', $this->makeResponse(500), 500);
+        $exception = new ApiException('error', 500);
 
         self::assertSame([], $exception->getErrorCodes());
     }
@@ -36,8 +27,7 @@ class ApiExceptionTest extends TestCase
     {
         $exception = new ApiException(
             message: 'error',
-            response: $this->makeResponse(400),
-            code: 400,
+            statusCode: 400,
             errorWrappers: [
                 ['error' => 'INVALID_INPUT', 'message' => 'Country code is invalid'],
                 ['error' => 'VAT_BLOCKED'],
@@ -51,19 +41,18 @@ class ApiExceptionTest extends TestCase
     {
         $exception = new ApiException(
             message: 'error',
-            response: $this->makeResponse(400),
-            code: 400,
+            statusCode: 400,
             errorWrappers: [['message' => 'no error key here']],
         );
 
         self::assertSame([''], $exception->getErrorCodes());
     }
 
-    public function testGetResponse(): void
+    public function testExceptionCodeMatchesStatusCode(): void
     {
-        $response = $this->makeResponse(500);
-        $exception = new ApiException('error', $response, 500);
+        $exception = new ApiException('error', 503);
 
-        self::assertSame($response, $exception->getResponse());
+        self::assertSame(503, $exception->getCode());
+        self::assertSame(503, $exception->getStatusCode());
     }
 }
